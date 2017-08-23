@@ -67,6 +67,7 @@ USE TipDat
 USE TowDat
 USE TowWires
 
+implicit none
 
    ! Argument declarations.
 
@@ -170,8 +171,8 @@ INTEGER                       :: NNBLAD
 INTEGER                       :: NSH
 INTEGER                       :: Sttus
 
-COMPLEX, ALLOCATABLE          :: eval(:)
-COMPLEX, ALLOCATABLE          :: evec(:,:)
+double COMPLEX, ALLOCATABLE          :: eval(:)
+double COMPLEX, ALLOCATABLE          :: evec(:,:)
 
 CHARACTER(200)                :: Fmt
 CHARACTER(200)                :: fmt_data1
@@ -754,11 +755,11 @@ DO jb=1,nnblad
 
    !! call jacobi(ngd,gk,gm,evl,evr)  
    
-   ALLOCATE ( eval(ngd), STAT=isttus )
-   if ( isttus /= 0 )  CALL ProgAbort ( 'Unable to allocate array, eval, in bldvib' )
+   ALLOCATE ( eval(ngd), STAT=sttus )
+   if ( sttus /= 0 )  CALL ProgAbort ( 'Unable to allocate array, eval, in bldvib' )
    
-   ALLOCATE ( evec(ngd,ngd), STAT=isttus )
-   if ( isttus /= 0 )  CALL ProgAbort ( 'Unable to allocate array, evec, in bldvib' )
+   ALLOCATE ( evec(ngd,ngd), STAT=sttus )
+   if ( sttus /= 0 )  CALL ProgAbort ( 'Unable to allocate array, evec, in bldvib' )
     
 
        call eigsolv ( gm, gk, ngd, eval, evec )
@@ -781,11 +782,11 @@ DO jb=1,nnblad
 
       ! order  eigenvalues (ascending order) and eigenvectors
       
-   ALLOCATE ( idseq(ngd), STAT=isttus )
-   if ( isttus /= 0 )  CALL ProgAbort ( 'Unable to allocate array, idseq, in bldvib' )
+   ALLOCATE ( idseq(ngd), STAT=sttus )
+   if ( sttus /= 0 )  CALL ProgAbort ( 'Unable to allocate array, idseq, in bldvib' )
    
-  ! ALLOCATE ( temp_col(ngd,ngd), STAT=isttus )
-  ! if ( isttus /= 0 )  CALL ProgAbort ( 'Unable to allocate array, temp_col, in bldvib' )
+  ! ALLOCATE ( temp_col(ngd,ngd), STAT=sttus )
+  ! if ( sttus /= 0 )  CALL ProgAbort ( 'Unable to allocate array, temp_col, in bldvib' )
   
    DO jf=1,ngd
       idseq(jf) = jf    

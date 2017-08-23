@@ -1,5 +1,6 @@
 MODULE Allocation
 
+   implicit none
    ! This module contains routines used to allocate many arrays.
 
 CONTAINS

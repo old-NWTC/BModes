@@ -12,12 +12,12 @@
 !*       and can be used for very large arrays.      *
 !*****************************************************
 SUBROUTINE HPSORT(N,RA,IND)
-
+implicit none
   INTEGER        :: N
   double precision  RA(N)
 
 
-  INTEGER        :: L, IR, J, TIND, IND(N)
+  INTEGER        :: L, IR, J, TIND, IND(N), I
   double precision  RRA
 
   L=N/2+1

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectCreator="Intel Fortran" Keyword="Console Application" Version="11.0" ProjectIdGuid="{84392668-BF1E-488A-9844-7BBAA0361544}">
+	<Platforms>
+		<Platform Name="Win32"/></Platforms>
+	<Configurations>
+		<Configuration Name="Debug|Win32" OutputDirectory="..\..\bin\" TargetName="$(ProjectName)_$(PlatformName)">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" WarnInterfaces="true" Traceback="true" BoundsCheck="true" StackFrameCheck="true" RuntimeLibrary="rtMultiThreadedDebugDLL"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" GenerateDebugInformation="true" SubSystem="subSystemConsole"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
+		<Configuration Name="Release|Win32" OutputDirectory="..\..\bin\" TargetName="$(ProjectName)_$(PlatformName)">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" RuntimeLibrary="rtMultiThreadedDLL"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration></Configurations>
+	<Files>
+		<Filter Name="Header Files" Filter="fi;fd;h;inc"/>
+		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
+		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<Filter Name="BModes">
+		<File RelativePath="..\..\src\Alloc.f90"/>
+		<File RelativePath="..\..\src\BldVib.f90"/>
+		<File RelativePath="..\..\src\BModes.f90"/>
+		<File RelativePath="..\..\src\eigsolver.f"/>
+		<File RelativePath="..\..\src\heap_sort.f90"/>
+		<File RelativePath="..\..\src\modules.f90"/>
+		<File RelativePath="..\..\src\SetProg.f90"/>
+		<File RelativePath="..\..\src\Struct.f90"/>
+		<File RelativePath="..\..\src\utilss.f90"/></Filter>
+		<Filter Name="NWTC_Library">
+		<File RelativePath="..\..\src\NWTC_Library_v1\DoubPrec.f90"/>
+		<File RelativePath="..\..\src\NWTC_Library_v1\ModMesh.f90"/>
+		<File RelativePath="..\..\src\NWTC_Library_v1\NWTC_Aero.f90"/>
+		<File RelativePath="..\..\src\NWTC_Library_v1\NWTC_IO.f90"/>
+		<File RelativePath="..\..\src\NWTC_Library_v1\NWTC_Library.f90"/>
+		<File RelativePath="..\..\src\NWTC_Library_v1\NWTC_Num.f90"/>
+		<File RelativePath="..\..\src\NWTC_Library_v1\SysIVF.f90"/></Filter></Filter></Files>
+	<Globals/></VisualStudioProject>
