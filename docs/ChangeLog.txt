@@ -1,0 +1,43 @@
+      BModes Change Log
+      -----------------
+
+1.00  21-Nov-2005  G. Bir
+ First official release.
+
+1.10  09-Jan-2006
+ Modify input channels for tip inertia
+ Perform non-dimensionalizations
+ Upgrade FE assemble to include tip mass, inertias, and c.m
+ Test code
+
+1.10  03-Feb-2006
+ Modify input channels for tension-wire-support properties
+ Perform non-dimensionalizations
+ Upgrade FE modeling
+ Modify/add input and output channels
+ Test code and release version 1.10
+
+1.20  07-July-2006
+ Provide for optional suppression of modal twist output at mid-node of finite elements
+ Modify code to handle: repeated eigenvalues and large offset of blade section c.m.
+ Provide option for suppressing modal output of twist at internal node of elements
+ Modify input file.
+ Screen display of mode numbers and message if para.inc file needs to be changed
+
+v1.03.01  26-Sep-2007  M. Buhl, G. Bir
+ We Converted all *.f files but math.f to free-form Fortran and renamed the files to
+   *.f90.
+ We modernized the program and made it mostly compatible with Fortran 2003:
+   Eliminated all the GOTOs we could.
+   Used matrix operations instead of many loops.
+   Converted all COMMON blocks to Modules.
+   Eliminated all INCLUDE files.
+   Eliminated unused code.
+   Converted to IMPLICIT NONE.
+   Changed lag_iner_mult to a REAL, as it should have been all along.
+   Converted much of the code to using the NWTC Library.
+   Added Echo of input parameters.
+   Used dynamic allocation for all arrays that depend on input parameters.
+   Cleaned up subroutine interfaces.
+   All dummy arguments now have INTENTs.
+
