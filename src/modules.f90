@@ -108,7 +108,8 @@ MODULE Omg
 
 USE Precision
 
-REAL(ReKi)                    :: omegar
+REAL(ReKi)                    :: omega
+REAL(ReKi)                    :: omega2
 
 END MODULE Omg
 !=======================================================================
@@ -117,11 +118,11 @@ MODULE Param
 
    ! Pure parameters:
 
-INTEGER, PARAMETER            :: ifree    =  0                          !
+INTEGER                       :: ifree    =  0                          !
 INTEGER, PARAMETER            :: lsft     =  0                          ! 1: pitch link is soft, 0: pitch link is rigid
 INTEGER, PARAMETER            :: maxhub   =  5                          !
-INTEGER, PARAMETER            :: maxmd    = 10                          !
-INTEGER, PARAMETER            :: nbcs     = 6                           ! Number of boundary conditions.  NOTE: This will become an input parameter later.
+!xx INTEGER, PARAMETER            :: maxmd    = 10                          !
+!xx INTEGER                       :: nbcs     = 6                           ! Number of boundary conditions.  NOTE: This will become an input parameter later.
 INTEGER, PARAMETER            :: nblade   =  1                          ! no. of blades
 INTEGER                       :: ndt                                    ! Total number of DOFs.
 INTEGER, PARAMETER            :: nedfbe   = 15                                        !
@@ -131,13 +132,13 @@ INTEGER, PARAMETER            :: ngaust   =  5                          ! Number
 INTEGER                       :: ngd                                    ! Number of bounded(?) DOFs.     GUNJIT NOTE: Check later.
 INTEGER, PARAMETER            :: ninteg   =  3                          ! Integer multiplicant which determines npsi ( npsi = nblade*ntelt*ninteg)
 INTEGER                       :: nintn                                  ! Number of internal nodes.
-INTEGER, PARAMETER            :: nmodes   =  6                          ! Number of normal modes used for stability.
-INTEGER, PARAMETER            :: nmodet   =  6                          ! Number of normal modes used for trim.
+INTEGER, PARAMETER            :: nmodes   =  6                          ! Number of normal modes used for stability. !GBBB
+INTEGER, PARAMETER            :: nmodet   =  6                          ! Number of normal modes used for trim. !GBBB
 INTEGER                       :: nndof                                  ! Number of nodal DOFs.
-INTEGER, PARAMETER            :: nsect    =  3                          ! Order of time integration within each time element.
+INTEGER, PARAMETER            :: nsect    =  3                          ! Order of time integration within each time element. !GBBB
 INTEGER                       :: nselt                                  ! Number of spatial elements.
-INTEGER, PARAMETER            :: ntelt    = 1                           ! Number of time elements.
-INTEGER, PARAMETER            :: tau      =  5.5                        !
+INTEGER, PARAMETER            :: ntelt    = 1                           ! Number of time elements. !GBBB
+INTEGER, PARAMETER            :: tau      = 0.                          ! !GBBB
 INTEGER, PARAMETER            :: UnIn     = 1                           ! I/O unit for primary input file.
 INTEGER, PARAMETER            :: UnOu     = 3                           ! I/O unit for output file.
 INTEGER, PARAMETER            :: UnSP     = 2                           ! I/O unit for section properties input file.
@@ -145,7 +146,7 @@ INTEGER, PARAMETER            :: UnSP     = 2                           ! I/O un
 
    ! Derived parameters:
 
-INTEGER, PARAMETER            :: npsi     = nblade*ntelt*ninteg         ! Number of azimuth locations = nblade*ntelt*ninteg
+INTEGER, PARAMETER            :: npsi     = nblade*ntelt*ninteg         ! Number of azimuth locations = nblade*ntelt*ninteg !GBBB
 
 END MODULE Param
 !=======================================================================
@@ -248,6 +249,8 @@ REAL(ReKi), ALLOCATABLE       :: gay         (:)
 REAL(ReKi), ALLOCATABLE       :: gaz         (:)
 REAL(ReKi), ALLOCATABLE       :: gj          (:)
 REAL(ReKi), ALLOCATABLE       :: rmas        (:)
+REAL(ReKi), ALLOCATABLE       :: elm_dist_k  (:)
+REAL(ReKi), ALLOCATABLE       :: elm_dist_m  (:)
 REAL(ReKi), ALLOCATABLE       :: sc_offst    (:)
 REAL(ReKi), ALLOCATABLE       :: sec_loc     (:)
 REAL(ReKi), ALLOCATABLE       :: skm1        (:)
@@ -277,6 +280,7 @@ MODULE TipDat
 USE Precision
 
 REAL(ReKi)                    :: cm_loc
+REAL(ReKi)                    :: cm_axial
 REAL(ReKi)                    :: ixx_tip
 REAL(ReKi)                    :: ixy_tip
 REAL(ReKi)                    :: iyy_tip
@@ -291,17 +295,30 @@ MODULE TowWires
 
 USE Precision
 
-REAL(ReKi)                    :: k_tower(2)
-REAL(ReKi)                    :: th_wire(2)
-REAL(ReKi)                    :: wire_stfness(2)
+REAL(ReKi), ALLOCATABLE       :: k_tower(:)
+REAL(ReKi), ALLOCATABLE       :: th_wire(:)
+REAL(ReKi), ALLOCATABLE       :: wire_stfness(:)
 
 INTEGER                       :: beam_type
 INTEGER                       :: n_attachments
-INTEGER                       :: n_wires(2)
-INTEGER                       :: node_attach(2)
+INTEGER, ALLOCATABLE          :: n_wires(:)
+INTEGER, ALLOCATABLE          :: node_attach(:)
 
 END MODULE TowWires
 !=======================================================================
+MODULE TowDat
+
+USE Precision
+
+REAL(ReKi), dimension(6,6)    :: hydro_K = 0.
+REAL(ReKi), dimension(6,6)    :: hydro_M = 0.
+REAL(ReKi), dimension(6,6)    :: i_matrix_pform = 0.
+REAL(ReKi), dimension(6,6)    :: mooring_K = 0.
+
+INTEGER                       :: tow_support = 0
+END MODULE TowDat
+!=======================================================================
+
 MODULE TrimV
 
 USE Precision

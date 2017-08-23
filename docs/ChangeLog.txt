@@ -41,3 +41,12 @@ v1.03.01  26-Sep-2007  M. Buhl, G. Bir
    Cleaned up subroutine interfaces.
    All dummy arguments now have INTENTs.
 
+v2.00.00 G. Bir
+   Introdiced new eigensolver
+   Intoduced new finite assembly scheme
+
+v3.00.00 March-20-2008 G. Bir
+   Introduced a new finite element
+   Extended BModes for offshore applications (monopile and floating-platform)
+
+

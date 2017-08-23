@@ -14,7 +14,7 @@ IMPLICIT                           NONE
 
    ! Local Variables:
 
-CHARACTER(27)                   :: Version = 'v1.03.01, 25-Sept-2007'             ! String containing the current version.
+CHARACTER(27)                   :: Version = 'v3.00.00, 20-Mar-2008'             ! String containing the current version.
 
 
 

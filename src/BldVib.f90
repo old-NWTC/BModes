@@ -8,7 +8,7 @@ SUBROUTINE BldVib ( nseg, ind, mdsqss, psi0, sprlag, eflap, elag, evr, evl, gm )
 
    ! *** OTHER SYMBOLS:
 
-   !     iartic = 0; hingeless blade
+   !     iartic = 0; hingeless or f-f blade
    !            = 1; flap hinge articulated blade
    !            = 2; flap then lag hinge articulated blade
    !            = 3; flap then lag hinge artic. blade with del3 effect
@@ -34,7 +34,7 @@ SUBROUTINE BldVib ( nseg, ind, mdsqss, psi0, sprlag, eflap, elag, evr, evl, gm )
    !     xbi(i) = location of inboard end of i'th element.
    !     xbims  = square of outboard station of an element.
    !     cfei   = centrifugal force at inboard end of an element.
-   !     cfe(i) = centrifugal force at inboard end of i'th element.
+   !     cfe(i) = centrifugal force at outboard end of i'th element.
    !     el(i)  = length of element i.  see MODULE Gauss in modules.f90
    !     rmas(i) = see MODULE Struc in modules.f90
    !     indrns = analysis switch for subroutine asbgbm.
@@ -53,7 +53,7 @@ USE DisBld
 USE Gauss
 USE Gravity
 USE NWTC_Library
-USE Omg
+!USE Omg
 USE Param
 USE pbrng
 USE plgeom
@@ -64,6 +64,7 @@ USE SftLnk
 USE Struc
 USE Swept
 USE TipDat
+USE TowDat
 USE TowWires
 
 
@@ -105,13 +106,20 @@ REAL(ReKi), ALLOCATABLE       :: gud      (:)
 REAL(ReKi)                    :: HUB_RAD
 REAL(ReKi)                    :: JZ
 REAL(ReKi)                    :: SPAN_LOC
+REAL(ReKi)                    :: tcm_loc   ! jan-08
+REAL(ReKi)                    :: tcm_axial  ! jan-08
+REAL(ReKi)                    :: tcd       ! jan-08
+REAL(ReKi)                    :: tcm_loc2  ! jan-08
+REAL(ReKi)                    :: tcm_axial2 ! jan-08
 REAL(ReKi), ALLOCATABLE       :: tcsd     (:,:,:)
+!REAL(ReKi), ALLOCATABLE       :: temp_col(:,:)
 REAL(ReKi)                    :: TH0
 REAL(ReKi), ALLOCATABLE       :: tht      (:)
 REAL(ReKi), ALLOCATABLE       :: tksd     (:,:,:)
 REAL(ReKi)                    :: tlam     (3,3)
 REAL(ReKi)                    :: tlam2    (nedof,nedof)
 REAL(ReKi)                    :: TWST
+REAL(ReKi)                    :: UDISP
 REAL(ReKi)                    :: VDISP
 REAL(ReKi)                    :: VP
 REAL(ReKi), ALLOCATABLE       :: vpt      (:)
@@ -128,8 +136,10 @@ REAL(ReKi)                    :: XBRHS
 REAL(ReKi)                    :: XSPAN
 REAL(ReKi)                    :: ZBAR
 
+INTEGER                       :: end_dof (6)
 INTEGER                       :: glob_node
 INTEGER                       :: I
+INTEGER, ALLOCATABLE          :: idseq(:)
 INTEGER                       :: IE
 INTEGER                       :: IEND
 INTEGER                       :: IJK
@@ -159,6 +169,9 @@ INTEGER                       :: NESH
 INTEGER                       :: NNBLAD
 INTEGER                       :: NSH
 INTEGER                       :: Sttus
+
+COMPLEX, ALLOCATABLE          :: eval(:)
+COMPLEX, ALLOCATABLE          :: evec(:,:)
 
 CHARACTER(200)                :: Fmt
 CHARACTER(200)                :: fmt_data1
@@ -273,14 +286,14 @@ DO i=1,iend
 
    xbims  = xbi * xbi
    xbi    = xbi - el(i)
-   xb(i)  = xbi
-   cfe(i) = cfei
-   cfei   = cfei + 0.5 * rmas(i) * (xbims - xbi * xbi) ! improve later
+   xb(i)  = xbi   !ib end
+   cfe(i) = cfei  ! tension force at ob end
+   cfei   = cfei + 0.5 * rmas(i) * (xbims - xbi * xbi) ! improve later  ! tension force at ib end
       !tower
       !         cfei   = cfei - grav * rmas(i) * el(i)
       !---
 
-      !        For the i'th element, set the connectivity vector indeg:
+      !  For the i'th element, set the connectivity vector indeg:
    nsh = ( i - 1 )*nesh
 
    DO j=1,nedof
@@ -367,13 +380,13 @@ if (ifree /= 1) then
    !     to non-zero values later, depending on which if any dofs, if any,
    !     remain unconstrained.
 
-   indeg( 1, iend) = 0
-   indeg( 5, iend) = 0
-   indeg( 6, iend) = 0
-   indeg( 9, iend) = 0
-   indeg(10, iend) = 0
-   indeg(13, iend) = 0
-
+     indeg( 1, iend) = 0
+     indeg( 5, iend) = 0
+     indeg( 6, iend) = 0
+     indeg( 9, iend) = 0
+     indeg(10, iend) = 0
+     indeg(13, iend) = 0
+   
    !comp
    !     restraint shear displacements at cantilever constraint
    !     set indeg(16, iend) = 0 and indeg(18, iend) = 0 without
@@ -423,18 +436,25 @@ if (ifree /= 1) then
       ! *** Set articulated blade boundary conditions
 
    if (iartic == 1) then
-      indeg(10,nselt) = indeg(2,nselt) + 1
+      indeg(10,nselt) = indeg(2,nselt) + 1   !flap hinge dof released
 
    else if (iartic == 2 .or. iartic == 3) then
-      indeg(10,nselt) = indeg(2,nselt) + 1
-      indeg(8,nselt)  = indeg(2,nselt) + 2
+      indeg(10,nselt) = indeg(2,nselt) + 1  !ib flap hinge
+      indeg(8,nselt)  = indeg(2,nselt) + 2  !ob lag hinge
 
    else if (iartic == 4) then
-      indeg(10,nselt) = indeg(2,nselt) + 1
-      indeg(6,nselt)  = indeg(2,nselt) + 2
+      indeg(10,nselt) = indeg(2,nselt) + 1  !ib flap hinge
+      indeg(6,nselt)  = indeg(2,nselt) + 2  !ib lag hinge
+
+   else if (iartic == 10) then              ! feb-08 (only axial and torsion constraints)
+      indeg( 5,nselt) = indeg(2,nselt) + 1 
+      indeg( 6,nselt) = indeg(2,nselt) + 2 
+      indeg( 9,nselt) = indeg(2,nselt) + 3 
+      indeg(10,nselt) = indeg(2,nselt) + 4  
    end if
-      !free
-end if
+
+end if ! (ifree /= 1)
+
 
    !nrel
 write (UnOu,'(A)')  'Results generated by '//TRIM( ProgName )//TRIM( ProgVer )//' on '//CurDate()//' at '//CurTime()//'.'
@@ -606,7 +626,24 @@ DO jb=1,nnblad
 
          !end-----------------------------------------------------------------
 
-         ! ***       Assemble this element's matrices into global matrices:
+   if (tow_support == 2 .and. i == nselt) then 
+     end_dof(1) =  1
+     end_dof(2) =  5
+     end_dof(3) =  6
+     end_dof(4) =  9
+     end_dof(5) = 10
+     end_dof(6) = 13
+  
+      do ll = 1, 6
+        do jj = 1, 6
+          em(end_dof(ll),end_dof(jj)) = em(end_dof(ll),end_dof(jj)) + i_matrix_pform(ll,jj) + hydro_M(ll,jj)
+          ek(end_dof(ll),end_dof(jj)) = ek(end_dof(ll),end_dof(jj)) + mooring_K(ll,jj) + hydro_K(ll,jj)
+        enddo
+      enddo
+      
+   endif ! tow_support = 2
+   
+         ! ***       Assemble this element matrices into global matrices:
 
       call asbgmk(gm,gk,em,ek,indeg(1,i))
 
@@ -625,45 +662,51 @@ DO jb=1,nnblad
       !        write(14,*) gk
 
 
-   if(beam_type == 2) then  ! tower tension wires contribution
-      do i = 1, n_attachments
+   if(tow_support == 1) then    
+      do i = 1, n_attachments  ! tower tension wires contribution
          glob_node = nselt+2-node_attach(i)
          nd_gv2 = 2+9*(glob_node-1)
          nd_gw2 = 4+9*(glob_node-1)
          gk(nd_gv2,nd_gv2) = gk(nd_gv2,nd_gv2)+k_tower(i)
          gk(nd_gw2,nd_gw2) = gk(nd_gw2,nd_gw2)+k_tower(i)
-      end do
+      end do     
    end if
 
 
-      ! Tip inertia contribution (using inertias per wt sign convention)
+      ! Tip inertia contribution (using inertias per wt sign convention) !jan-08
 
+   tcm_loc   = tip_mass*cm_loc
+   tcm_axial  = tip_mass*cm_axial
+   tcd       = tip_mass*cm_loc*cm_axial
+   tcm_loc2  = tip_mass*cm_loc*cm_loc
+   tcm_axial2 = tip_mass*cm_axial*cm_axial
+   
+   gm(1,1) = gm(1,1) + tip_mass
+   gm(1,3) = gm(1,3) - tcm_loc
+   
    gm(2,2) = gm(2,2) + tip_mass
+   gm(2,3) = gm(2,3) + tcm_axial
+   
+   gm(3,1) = gm(1,3)
+   gm(3,2) = gm(2,3)
+   gm(3,3) = gm(3,3) + tcm_loc2 + tcm_axial2 + izz_tip
+   gm(3,5) = gm(3,5) - iyz_tip
+   gm(3,6) = gm(3,6) + izx_tip 
+   
    gm(4,4) = gm(4,4) + tip_mass
-   gm(4,6) = gm(4,6) + tip_mass*cm_loc
-
-   if(beam_type == 1) then
-      gm(3,3) = gm(3,3) + ixx_tip         !add lag of inertia
-      gm(5,5) = gm(5,5) + iyy_tip         !add flap mom of inertia
-      gm(6,6) = gm(6,6) + izz_tip         !add torsion mom of inertia
-      gm(3,5) = gm(3,5) - ixy_tip         !add flap-lag cross mom of inertia
-      gm(5,6) = gm(5,6) - iyz_tip         !add flap-torsion cross mom of inertia
-      gm(6,3) = gm(6,3) + izx_tip         !add torsion-lag cross mom of inertia
-      gm(5,3) = gm(5,3) - ixy_tip         !add flap-lag cross mom of inertia
-      gm(6,5) = gm(6,5) - iyz_tip         !add flap-torsion cross mom of inertia
-      gm(3,6) = gm(3,6) + izx_tip         !add torsion-lag cross mom of inertia
-   else
-      gm(3,3) = gm(3,3) + iyy_tip         !add f-a mom of inertia
-      gm(5,5) = gm(5,5) + ixx_tip         !add s-s mom of inertia
-      gm(6,6) = gm(6,6) + izz_tip         !add torsion mom of inertia
-      gm(3,5) = gm(3,5) + ixy_tip         !add cross mom of inertia
-      gm(5,6) = gm(5,6) + izx_tip         !add cross mom of inertia
-      gm(6,3) = gm(6,3) + iyz_tip         !add cross mom of inertia
-      gm(5,3) = gm(5,3) + ixy_tip         !add cross mom of inertia
-      gm(6,5) = gm(6,5) + izx_tip         !add cross mom of inertia
-      gm(3,6) = gm(3,6) + iyz_tip         !add cross mom of inertia
-   end if
-
+   gm(4,5) = gm(4,5) + tcm_axial
+   gm(4,6) = gm(4,6) + tcm_loc
+ 
+   gm(5,3) = gm(3,5) 
+   gm(5,4) = gm(4,5) 
+   gm(5,5) = gm(5,5) + iyy_tip + tcm_axial2
+   gm(5,6) = gm(5,6) - ixy_tip + tcd
+    
+   gm(6,3) = gm(3,6) 
+   gm(6,4) = gm(4,6) 
+   gm(6,5) = gm(5,6)
+   gm(6,6) = gm(6,6) + ixx_tip + tcm_loc2
+  
       !----------------------------------------------------------------------
       !comp fix this for shear element
 
@@ -679,8 +722,10 @@ DO jb=1,nnblad
    end if
 
       !--------------------------------------------------------------------
+      
+ !!  gm = 0.5*(TRANSPOSE(gm)+gm)
+ !!  gk = 0.5*(TRANSPOSE(gk)+gk)
 
-      !free
       !     Add tau*[gm] to [gk] for eivl-shift
 
       !2000      if (ifree == 1) then
@@ -690,55 +735,75 @@ DO jb=1,nnblad
          gk(jf,kf) = gk(jf,kf) + tau*gm(jf,kf)
       end do ! jf
    end do ! kf
-
-      !test      print *, ' tau=', tau
-
-      !2000end      end if
+ 
 
       ! *** Perform the eigenanalysis on the assembled matrices:
+ 
+  !test gm, gk output
+     
+  !write(33,*) gm
+  !write(34,*) gk
+  
+  !test gm, gk output
+    !do jj=1, ngd
+    ! do kk=1, ngd
+       !write(13,*) gm(kk,jj), gk(kk,jj)
+     !enddo ! kk
+    !enddo ! jj
+  !end test
 
+   !! call jacobi(ngd,gk,gm,evl,evr)  
+   
+   ALLOCATE ( eval(ngd), STAT=isttus )
+   if ( isttus /= 0 )  CALL ProgAbort ( 'Unable to allocate array, eval, in bldvib' )
+   
+   ALLOCATE ( evec(ngd,ngd), STAT=isttus )
+   if ( isttus /= 0 )  CALL ProgAbort ( 'Unable to allocate array, evec, in bldvib' )
+    
 
-   call jacobi(ngd,gk,gm,evl,evr)
+       call eigsolv ( gm, gk, ngd, eval, evec, status )
+ !     NOTE** original gm is destroyed
 
+       evl = abs(real(eval))
+       evr = real(evec)
 
-      !test
-      !      do kk=1, ngd
-      !        write(13,*) (gm(kk,jj),jj=1,ngd)
-      !        write(23,*) (gk(kk,jj),jj=1,ngd)
-      !     enddo
-
-      !free  Undo the shift
-
-      !2000      if (ifree == 1) then
-
+      ! undo the shift
    DO jf=1,ngd
-      evl(jf) = evl(jf) - tau
+      evl(jf) = evl(jf) - tau    
    END DO ! jf
 
-
-      ! Note: this evl (=freq squared) is normalized wrt actual omega
-
-      !  Note gm may be singular, as long as it is symmetric positive
-      !  definite. Loop on i makes the eigenvalues look like they did
-      !  with the old JACOBI subroutine. Set matz to positive integer
-      !  to get eigenvectors.
-
-      !debug
-      !  matz = 1
-      !  call rsg (mgd,ngd,gm,gk,evl,matz,evr,fv1,fv2,ierr)
-      !  if (ierr/=0) call bomb('bldvib:       rsg returned non-zero error code.')
-      !  do i=1,ngd
-      !     if (1.d0+evl(i)==1.d0)  call bomb("bldvib: can't handle infinite frequency yet.")
-      !     evl(i) = 1.d0/evl(i)
-      !  end do ! i
+     ! Note: this evl (=freq squared) is normalized wrt actual omega
 
    write(*,*) ' '
    write(*,*)' ******** modal analysis results ', '**********'
    write(*,*) ' '
 
-      !----------------------------------------------------------------
-
-      ! ***    Normalize  eigenvectors: ( norm2 )
+      ! order  eigenvalues (ascending order) and eigenvectors
+      
+   ALLOCATE ( idseq(ngd), STAT=isttus )
+   if ( isttus /= 0 )  CALL ProgAbort ( 'Unable to allocate array, idseq, in bldvib' )
+   
+  ! ALLOCATE ( temp_col(ngd,ngd), STAT=isttus )
+  ! if ( isttus /= 0 )  CALL ProgAbort ( 'Unable to allocate array, temp_col, in bldvib' )
+  
+   DO jf=1,ngd
+      idseq(jf) = jf    
+   END DO ! jf
+    
+   call hpsort(ngd,evl,idseq)
+   
+  !test eigensolution
+  !do jj=1, ngd
+  !    write(23,*) evl(jj)
+  !enddo ! jj
+  !end test eigensolution
+ 
+   do jj = 1, ngd
+     gm(:,jj) = evr(:,idseq(jj))  ! note: this gm is NOT the mass matrix
+   enddo
+   evr = gm
+   
+      ! normalize  eigenvectors ( norm2 )
 
    call  normev ( evr, ngd )
 
@@ -765,16 +830,19 @@ DO jb=1,nnblad
       WRITE (UnOu,Fmt) modepr
    end if
 
+   WRITE (*,*) ' Number of global dof =', ngd
+   WRITE (*,*) ' '
+
    DO j=1,modepr
 
-      jp = ngd + 1 -j
-      freq = sqrt( abs( evl(jp) ) )
+      jp = j
+!jan-08      jp = ngd + 1 -j
+      freq = sqrt( evl(jp) )
 
+         ! Output eivalue and freq (hz)
 
-         ! Output eivalue and freq normalized wrt ref omega
-
-      Fmt = "(6x,'eigenvalue(',i3,') = ', d13.6, 8x, 'mode', i3, 1x,'frequency = ', f13.6)"
-      WRITE (*,Fmt)  jp, evl(jp)*omegar**2, j, freq*omegar*romg/TwoPi
+      Fmt = "(4x,'mode', i4, 2x,'frequency (hz) =', f11.3)"
+      WRITE (*,Fmt) j, freq*romg/TwoPi
 
          !nrel           write (UnOu,7200) jp, evl(jp)*omegar**2, freq*omegar
          !nrel           write (UnOu,7300) (i,evr(i,jp),i=1,ngd)
@@ -782,10 +850,10 @@ DO jb=1,nnblad
          !        reformat modal displacement output: show spanwise disp
          !        distribution for mode 'jp'
 
-      if (iartic == 0) then  !modify later for other hub articulations
+      if (iartic == 0 .or. iartic == 10) then  !cantilvered, or only axial+torsion constrained
 
          Fmt =  "(//,1x,'-------- Mode No.',i4,'  (freq =',e12.5,' Hz)',/)"
-         WRITE (UnOu,Fmt)  j, freq*omegar*romg/TwoPi
+         WRITE (UnOu,Fmt)  j, freq*romg/TwoPi
 
          if(TabDelim ) then
             if(beam_type == 1) then
@@ -805,7 +873,6 @@ DO jb=1,nnblad
             END IF
          END IF
 
-            !nrel
          xspan = xb(iend)
 
          if(id_form == 1) then  ! for wt
@@ -814,17 +881,28 @@ DO jb=1,nnblad
          end if
 
          if ( ifree == 1 ) then
+            udisp = evr(ngd-5,jp)
             wdisp = evr(ngd-2,jp)
             wp    = evr(ngd-1,jp)
             vdisp = evr(ngd-4,jp)
             vp    = evr(ngd-3,jp)
             twst  = evr(ngd  ,jp)
-         else
+         elseif (ifree == 0 .and. iartic == 10) then
+            udisp = 0.0
+            wdisp = evr(ngd-1,jp)
+            wp    = evr(ngd,  jp)
+            vdisp = evr(ngd-3,jp)
+            vp    = evr(ngd-2,jp)
+            twst  = 0.0
+         elseif (ifree == 0 .and. iartic == 0) then
+            udisp = 0.0
             wdisp = 0.0
             wp    = 0.0
             vdisp = 0.0
             vp    = 0.0
             twst  = 0.0
+         else
+            write(*,*) ' ERROR 6789: contact G. Bir at NREL'
          end if
 
             !             write (UnOu,1213) xspan*radius, wdisp, wp,
@@ -838,14 +916,14 @@ DO jb=1,nnblad
          DO ie=iend,1,-1
             DO inode= 1,2
 
-               ! inode=11: mid-node
-               ! inode=22: rhs end node
+               ! inode=1: mid-node
+               ! inode=2: rhs end node
 
                ! ispan = 2*(iend-ie) + inode
                xspan = xb(ie) + 0.5*el(ie)*inode
-               if(id_form == 1) then  ! for wt
+!               if(id_form == 1) then  ! for wt GBBB
                 span_loc = (xspan*radius - hub_rad)/bl_len
-               end if
+!               end if
 
                if ( inode == 1 .and. mid_node_tw ) then
                   twst = evr(9*(ie-1)+8,jp)

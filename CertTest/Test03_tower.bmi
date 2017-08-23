@@ -1,5 +1,5 @@
-======================   BModes v1.03 Main Input File  ==================
-Modes of a 82.4m tower with tip mass (output is space-delimited)
+======================   BModes v3.00 Main Input File (not fully updated) ==================
+Modes of a 82.4m tower with tip mass
 
 --------- General parameters ---------------------------------------------------------------------
 False     Echo        Echo input file contents to *.echo file if true.
@@ -18,6 +18,7 @@ f         mid_node_tw  (true: output twist at mid-node of elements; false: no mi
 --------- Blade-tip or tower-top mass properties --------------------------------------------
 78055.8   tip_mass    blade-tip or tower-top mass (see users' manual) (kg)
 -3.3      cm_loc      tip-mass c.m. offset from the tower axis measured along the tower-tip x reference axis (m)
+1.1       cm_axial    tip-mass c.m. offset tower tip measures axially along the z axis (m)
 2960437.  ixx_tip     blade lag or tower s-s mass moment of inertia about the tip-section x reference axis (kg-m^2)
 3253223.  iyy_tip     blade flap or tower f-a mass moment of inertia about the tip-section y reference axis (kg-m^2)
 3264220.  izz_tip     torsion mass moment of inertia about the tip-section z reference axis (kg-m^2)
@@ -46,9 +47,11 @@ Property scaling factors..............................
 Distance of element boundary nodes from blade or flexible-tower root (normalized wrt blade or tower length), el_loc()
 0.  0.08  0.16  0.24  0.32  0.40  0.48  0.56  0.64  0.72  0.80  0.90   1.0
 
---------- Properties of tension wires suporting the tower --------------------------------
+--------- Properties of additional tower support subsystem (read only if beam_type is 2) ------------
+0         tow_support: : additional tower support [0: no additional support; 1: Tension guy wires for land-based tower; 2: offshore turbine support: floating platform or monopile] (-)
+Tension-wires data
 0         n_attachments: no of wire-attachment locations on tower, maxm allowable is 2; 0: no tension-wire support (-)
 3 3       n_wires:       no of wires attached at each location (must be 3 or higher) (-)
 6 9       node_attach:   node numbers of attacments location (node number must be more than 1 and less than nselt+2) (-)
-0.e0 0.e0 wire_stfness:  wire sifnness in each set (see users' manual) (N/m)
-0. 0.     th_wire:       angle of tension wires wrt the tower axis at each attachment point (deg)
+1.e8 1.e8 wire_stfness:  wire sifnness in each set (see users' manual) (N/m)
+45. 45.   th_wire:       angle of tension wires (wrt a horizontal plane) at each attachment point (deg)

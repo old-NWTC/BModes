@@ -1,0 +1,62 @@
+
+ ivecbe is an elemental sequencing vector for 15 dof Bernoulli-
+ Euler beam. Local dof's looks like:
+
+           u    1     2       3     4
+           v    5                   7
+ Inboard   v'   6                   8   Outboard
+           w    9                  11
+           w'   10                 12
+           phi  13        14       15
+                ______________________
+               | .    .   .   .     .|
+                ---------------------
+
+ But the global dofs are sequenced to look like this:
+
+           u    10    9       7     1
+           v    11                  2
+ Inboard   v'   12                  3   Outboard
+           w    13                  4
+           w'   14                  5
+           phi  15        8         6
+                ______________________
+               | .    .   .   .     .|
+                ---------------------
+
+ Global dof sequence of i'th elemental dof = ivecbe(i)
+
+ INTEGER                 :: ivecbe(nedfbe) = (/ 10,  9,  7,  1, 11
+&                                             , 12,  2,  3, 13, 14
+&                                             ,  4,  5, 15,  8,  6
+&                                            /)
+========================================================================
+
+ ivecbe is an elemental sequencing vector for 15 dof Bernoulli-
+ Euler beam. Local dof's looks like:
+
+           u    1     2       3     4
+           v    5                   7
+ Inboard   v'   6                   8   Outboard
+           w    9                  11
+           w'   10                 12
+           phi  13        14       15
+                ______________________
+               | .    .   .   .     .|
+                ---------------------
+
+ But the global dofs are sequenced to look like this:
+
+           u    10    9       7     1
+           v    11                  2
+ Inboard   v'   12                  3   Outboard
+           w    13                  4
+           w'   14                  5
+           phi  15        8         6
+                ______________________
+               | .    .   .   .     .|
+                ---------------------
+ INTEGER                 :: ivects(nedfts) = (/ 12, 11,  9,  1, 13
+&                                             , 14,  2,  3, 15, 16
+&                                             ,  4,  5, 17, 10,  6
+&                                             , 18,  7, 19,  8 /)

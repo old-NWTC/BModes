@@ -70,6 +70,16 @@ CONTAINS
       CALL ProgAbort( 'Cannot allocate array, eiz, in Alloc1().' )
    END IF
 
+   ALLOCATE ( elm_dist_k(nselt), STAT=Sttus )
+   IF ( Sttus /= 0 )  THEN
+      CALL ProgAbort( 'Cannot allocate array, elm_dist_k, in Alloc1().' )
+   END IF
+
+   ALLOCATE ( elm_dist_m(nselt), STAT=Sttus )
+   IF ( Sttus /= 0 )  THEN
+      CALL ProgAbort( 'Cannot allocate array, elm_dist_m, in Alloc1().' )
+   END IF
+
    ALLOCATE ( gay(nselt), STAT=Sttus )
    IF ( Sttus /= 0 )  THEN
       CALL ProgAbort( 'Cannot allocate array, gay, in Alloc1().' )

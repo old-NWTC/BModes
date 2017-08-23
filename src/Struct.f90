@@ -22,6 +22,7 @@ USE DisBld
 USE Gauss
 USE Gravity
 USE NWTC_Library
+USE Omg ! March-08
 USE Param
 USE pbrng
 USE Pitch
@@ -437,7 +438,7 @@ end if
    !
    !--------------------------------------------------------------------
 
-   !     calculate pitch control twist velocity and acceleration
+   !     calculate pitch twist control velocity and acceleration
 
 th0d  = -th1c*ss + th1s*cs
 th0dd = -th1c*cs - th1s*ss
@@ -495,11 +496,11 @@ if ( netip /= 0 ) then
 
    k = nselt + 1 - l
 
-   !        calculate transformation for current swept element
+   !      transformation for current swept element
    !agb
     Ptch = th75 + th1c*cs + th1s*ss
 
-   !        calculate transformation for current element
+   !       transformation for current element
 
    do ikseg=k,nselt
 
@@ -885,7 +886,7 @@ end if
 
    !--------------------------------------------------------------------
 
-   !     gauss loop over "current (lth)" element
+   ! +++++++++++++++++++++++    gauss loop over "current (lth)" element
 
 DO n=1,ngauss
 
@@ -1079,17 +1080,17 @@ DO n=1,ngauss
       !sweep
       !agb
    if ( ielrot(l) /= 1 )  then
-      fi = axfi + 0.5*rmas(l)*( xbils - x**2 )
+!      fi = axfi + 0.5*rmas(l)*( xbils - x**2 )           !old
+      fi = ( axfi + 0.5*rmas(l)*( xbils - x**2 ) )*omega2 !march-08
       !tower -- for gravity-induced com load (e.g. for a tower)
-
-      !        fi = axfi - grav *rmas(l)*(eli - xi)
+      !        fi = (axfi - grav *rmas(l)*(eli - xi))*omega2
       !--
    end if
       !agb
       !     calculate centrifugal force for advanced geometry blade
 
    if ( netip /= 0 )  then
-      fi = cf1(n) +  cf2
+      fi = (cf1(n) +  cf2)*omega2
    end if
 
       !--------------------------------------------------------------------
@@ -1166,9 +1167,11 @@ DO n=1,ngauss
 
             ek(i ,j4) = ek(i,j4)  - gqwl*huphs *eaeact
             ek(i ,j8) = ek(i,j8)  - gqwl*huphs *eaeast
-            ek(i4,j4) = ek(i4,j4) - gqwml* hh + gqwl*(hphp*fi + hshs*ceicss)
+!           ek(i4,j4) = ek(i4,j4) - gqwml* hh + gqwl*(hphp*fi + hshs*ceicss)                     ! old
+            ek(i4,j4) = ek(i4,j4) - gqwml* omega2*hh + gqwl*(hphp*fi + hshs*ceicss + hh*elm_dist_k(l))  !new- omega2 and additional dist stiffness feb-08
             ek(i4,j8) = ek(i4,j8) + gqwl*hshs  *deicst
-            ek(i8,j8) = ek(i8,j8) + gqwl*(hphp*fi + hshs*ceiscs)
+!           ek(i8,j8) = ek(i8,j8) + gqwl*(hphp*fi + hshs*ceiscs)                      ! old
+            ek(i8,j8) = ek(i8,j8) + gqwl*(hphp*fi + hshs*ceiscs + hh*elm_dist_k(l))   !new- additional dist stiffness feb-08
 
          end if ! ( ielrot(l) == 1 )
 
@@ -1189,16 +1192,20 @@ DO n=1,ngauss
          if ( indrns >= 1 )  then
 
             if ( ielrot(l) == 1 ) then
-               ec(i,j4)  = ec(i,j4) - gqwml*hu(i)*h(j)*2.0d0*a3
+               ec(i,j4)  = ec(i,j4) - gqwml*hu(i)*h(j)*2.0*a3
                   !agb
-               ec(i,j8)  = ec(i,j8) + gqwml*hu(i)*h(j)*2.0d0*a2
+               ec(i,j8)  = ec(i,j8) + gqwml*hu(i)*h(j)*2.0*a2
 
                ec(i4,j4) = ec(i4,j4)+gqwml *(hp(i)*h(j) - hhp)*2.*a3*egct
-               ec(i4,j8) = ec(i4,j8) - gqwml *(hh*a1+a3*hhp*egst)*2.0 - gqwml *hph*egct*a2*2.d0
+               ec(i4,j8) = ec(i4,j8) - gqwml *(hh*a1+a3*hhp*egst)*2.0 - gqwml *hph*egct*a2*2.
             else
-               ec(i,j4)  = ec(i,j4)  - gqwml*hu(i)*h(j)*2.0d0
-               ec(i4,j4) = ec(i4,j4) + gqwml *(hp(i)*h(j) - hhp)*2.* egct
-               ec(i4,j8) = ec(i4,j8) - gqwml *(hh*btp + hhp*egst)*2.
+               ec(i,j4)  = ec(i,j4)  - gqwml*omega*hu(i)*h(j)*2.0
+               ec(i4,j4) = ec(i4,j4) + gqwml*omega *(hp(i)*h(j) - hhp)*2.* egct
+               ec(i4,j8) = ec(i4,j8) - gqwml*omega *(hh*btp + hhp*egst)*2.
+               
+!               ec(i,j4)  = ec(i,j4)  - gqwml*hu(i)*h(j)*2.0 !old
+!               ec(i4,j4) = ec(i4,j4) + gqwml *(hp(i)*h(j) - hhp)*2.* egct !old
+!               ec(i4,j8) = ec(i4,j8) - gqwml *(hh*btp + hhp*egst)*2. !old
             end if ! ( ielrot(l) == 1 )
 
             ec(j4,i)  =-ec(i,j4)
@@ -1210,8 +1217,10 @@ DO n=1,ngauss
          end if ! ( indrns >= 1 )
 
          em(i,j)   = em(i,j)   + gqwml*hu(i)*hu(j)
-         em(i4,j4) = em(i4,j4) + gqwml*hh
-         em(i8,j8) = em(i8,j8) + gqwml*hh
+!        em(i4,j4) = em(i4,j4) + gqwml*hh     !old
+!        em(i8,j8) = em(i8,j8) + gqwml*hh     !old
+         em(i4,j4) = em(i4,j4) + (gqwml + gqwl*elm_dist_m(l))*hh  !new (added mass distr)
+         em(i8,j8) = em(i8,j8) + (gqwml + gqwl*elm_dist_m(l))*hh  !new (added mass distr)
 
       END DO ! J
 
@@ -1235,8 +1244,10 @@ DO n=1,ngauss
          else
             ek(i,j12)   = ek(i,j12)  + gqwl *hup(i)*hfp(j)*aeithp
 
-            ek(i4,j12)  = ek(i4,j12) + gqwml*(hhf*egst - hphf*egxst) - gqwl *(hshfp*eb2tct + hshfs*ec2(l)*st)
-            ek(i8,j12)  = ek(i8,j12) + gqwml*hphf*egxct - gqwl*(hshfp*eb2tst - hshfs*ec2(l)*ct)
+            ek(i4,j12)  = ek(i4,j12) + gqwml*omega2*(hhf*egst - hphf*egxst) - gqwl *(hshfp*eb2tct + hshfs*ec2(l)*st) !march-08 omega2 
+ !           ek(i4,j12)  = ek(i4,j12) + gqwml*(hhf*egst - hphf*egxst) - gqwl *(hshfp*eb2tct + hshfs*ec2(l)*st) !old
+            ek(i8,j12)  = ek(i8,j12) + gqwml*omega2*hphf*egxct - gqwl*(hshfp*eb2tst - hshfs*ec2(l)*ct) !march-08 omega2 
+ !           ek(i8,j12)  = ek(i8,j12) + gqwml*hphf*egxct - gqwl*(hshfp*eb2tst - hshfs*ec2(l)*ct) !old
 
          end if ! ( ielrot(l) == 1 )
 
@@ -1279,12 +1290,13 @@ DO n=1,ngauss
          hfhf   =  hf(i)*hf(j)
 
          if ( ielrot(l) == 1 )  then
-            ek(i12,j12) = ek(i12,j12) + gqwml*hfhf*(a33-a22)*dskc2t + gqwl*hfp(i)*hfp(j)*gjeb1t + gqwml*hfhf*xt2*((a11+a33)*egct  &
+            ek(i12,j12) = ek(i12,j12) + gqwml*hfhf*(a33-a22)*dskc2t*omega2 + gqwl*hfp(i)*hfp(j)*gjeb1t + gqwml*hfhf*xt2*((a11+a33)*egct  &
                         - a23*egst) + gqwml*hfhf*xt3*( (a11+a33)*egst - a23*egct ) + gqwl*hfs(i)*hfs(j)*ec1(l)  &
                !agb
                         - gqwml*hfhf*2.0*a2*a3*dsks2t
          else
-            ek(i12,j12)  = ek(i12,j12) + gqwml*hfhf*dskc2t + gqwl *hfp(i)*hfp(j)*gjeb1t + gqwl *hfs(i)*hfs(j)*ec1(l)
+            ek(i12,j12)  = ek(i12,j12) + gqwml*hfhf*dskc2t*omega2 + gqwl *hfp(i)*hfp(j)*gjeb1t + gqwl *hfs(i)*hfs(j)*ec1(l) !march-08 omega2
+!            ek(i12,j12)  = ek(i12,j12) + gqwml*hfhf*dskc2t + gqwl *hfp(i)*hfp(j)*gjeb1t + gqwl *hfs(i)*hfs(j)*ec1(l) !old
          end if ! ( ielrot(l) == 1 )
 
          em(i12,j12) = em(i12,j12) + gqwml*hfhf*skm
