@@ -312,8 +312,8 @@ REAL(ReKi)                    :: xjfct1
 REAL(ReKi)                    :: xjfct2
 REAL(ReKi)                    :: xlhs
 REAL(ReKi)                    :: xmid
-REAL, ALLOCATABLE             :: z_distr_k (:)
-REAL, ALLOCATABLE             :: z_distr_m (:)
+REAL(ReKi), ALLOCATABLE             :: z_distr_k (:)
+REAL(ReKi), ALLOCATABLE             :: z_distr_m (:)
 
 INTEGER                       :: hub_conn
 INTEGER                       :: i
@@ -362,8 +362,9 @@ CHARACTER(200)                :: OutFile                                      ! 
 CHARACTER(200)                :: sec_props_file                               ! Name of the section-properties input file.
 
 
+CALL NWTC_Init()
 
-call OpenCon   ! opens the console !for_unix?
+!bjj replaced with NWTC_Init: call OpenCon   ! opens the console !for_unix?
 call SetProg   ! retrieves Prog_name and Prog_version
 call DispNVD   ! displays the name of the program, version number, and date of release on console screen
 
@@ -380,7 +381,7 @@ call NameOFile (1, 'out', OutFile)   !name OutFile to be *.out
 !---
 
    ! Compute some common constants using Pi.
-CALL PiConsts  !for_unix?
+!bjj replaced with NWTC_Init: CALL PiConsts  !for_unix?
 
    !hardwired vlaues
 id_form = 1  ! 2 for h/c !GBBB

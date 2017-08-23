@@ -761,7 +761,8 @@ DO jb=1,nnblad
    if ( isttus /= 0 )  CALL ProgAbort ( 'Unable to allocate array, evec, in bldvib' )
     
 
-       call eigsolv ( gm, gk, ngd, eval, evec, status )
+       call eigsolv ( gm, gk, ngd, eval, evec )
+!       call eigsolv ( gm, gk, ngd, eval, evec, status )
  !     NOTE** original gm is destroyed
 
        evl = abs(real(eval))

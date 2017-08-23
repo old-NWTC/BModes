@@ -18,8 +18,11 @@
       REAL(ReKi)                  :: gk (ndof, ndof)
       REAL(ReKi)                  :: gm (ndof, ndof)
       
-      REAL(ReKi), ALLOCATABLE     :: w1(:)
-      REAL(ReKi), ALLOCATABLE     :: w2(:)
+      !REAL(ReKi), ALLOCATABLE     :: w1(:)
+      !REAL(ReKi), ALLOCATABLE     :: w2(:)
+
+      INTEGER,    ALLOCATABLE     :: w1(:)
+      INTEGER,    ALLOCATABLE     :: w2(:)
       REAL(ReKi), ALLOCATABLE     :: wkppt(:)
 
       INTEGER                     :: ier
@@ -54,7 +57,7 @@
 c***************************** subroutine minv *************************
 c                               from UMARC
       subroutine minv(a,n,d,l,m)
-
+!bjj: n,m,and l are integers
       implicit real*8(a-h,o-z)
       dimension l(1),m(1),a(1)
 

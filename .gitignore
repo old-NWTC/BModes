@@ -19,7 +19,7 @@ install/**
 .*.swp
 .*.swo
 
-compiling/*
+vs-build/*
 bin/*
 /src/MAP/MAP_Types.h
 
