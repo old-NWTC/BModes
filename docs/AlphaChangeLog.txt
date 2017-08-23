@@ -1,0 +1,178 @@
+      BModes Change Log
+      -----------------
+
+1.00  21-Nov-2005  G. Bir
+ First official release.
+
+v1.03.00a-mlb  14-Aug-2007  M. Buhl
+ I added USE Precision to the various routines and changed the IMPLICIT REAL*8 to
+   IMPLICIT REAL(ReKi).  I linked with the DoubPrec.f90 module.
+ In BModes.f, I changed two occurences of "eps" to "eps1", because "eps" was not
+   defined.
+
+v1.03.00b-mlb  21-Aug-2007  M. Buhl
+ I changed many common blocks to modules.
+ I commented out many unused common blocks and variables in BModes.f.
+ I eliminated many unused variables.
+
+v1.03.00c-mlb  21-Aug-2007  M. Buhl
+ I changed many common blocks to modules.
+ I commented out many unused common blocks and variables in BModes.f.
+ I eliminated many unused variables.
+
+v1.03.00d-mlb  21-Aug-2007  M. Buhl
+ I changed many common blocks to modules.
+ I commented out many unused common blocks and variables in BModes.f.
+ I eliminated many unused variables.
+ I deleted aerodynamics-related comments from BModes.f.
+ I changed the strings to hold file names to 200 characters.
+ I changed the variable in the pitch common to Ptch so I could use the
+   same variable name in all routines.
+
+v1.03.00e-mlb  22-Aug-2007  M. Buhl
+ I changed many common blocks to modules.
+ I commented out many unused common blocks and variables in BModes.f.
+ I eliminated many unused variables.
+ I eliminated subroutine sweep and all it's references.
+
+v1.03.00f1-mlb  22-Aug-2007  M. Buhl
+ I changed many common blocks to modules.
+ I commented out many unused common blocks and variables in BModes.f.
+ I eliminated many unused variables.
+
+v1.03.00f2-mlb  24-Aug-2007  M. Buhl
+ I changed many common blocks to modules.
+ I commented out many unused common blocks and variables in BModes.f.
+ I eliminated many unused variables.
+ I initialized netip to zero in module Swept.
+
+v1.03.00f3-mlb  24-Aug-2007  M. Buhl
+ More general cleanup.
+ I changed the name of the unit specifier for the main input file from
+   kr to UnIn.  I changed all reads from unit 21 to reads from specifier
+   UnSP (section properties).  I changed the unit specifier for the main
+   output file from kw to UnOu.  I put the three specifiers in module
+   Param.  I had to remove kw from a lot of places.
+
+v1.03.00f4-mlb  24-Aug-2007  M. Buhl
+ I eliminated the last of the common and include statements.
+ I cleaned up subroutine normev in utilss.f.
+
+v1.03.01a1-mlb  24-Aug-2007  M. Buhl
+ I deleted all my alpha comments from the previous version.
+
+v1.03.01a2-mlb  24-Aug-2007  M. Buhl
+ I eliminated all the variables that were flagged by the compiler as
+   unused.
+ I eliminated shared DO terminations.
+ I fixed all other fixable nonstandard code.
+
+v1.03.01a4-mlb  27-Aug-2007  M. Buhl
+ I changed many local variables to allocatable.
+ I explicitly delared all arguments, dynamically allocated local variables,
+   and used real array lengths for arguments in struct.f and bldvib.f.
+ I deleted some global variables from the struct() argument list and USEd
+   the appropriate modules.
+ I eliminate calls to init() and replaced them with array initializations
+   to zero.  I eliminated init().
+
+v1.03.01a5-mlb  28-Aug-2007  M. Buhl
+ I put in explicit declarations for all arguments and arrays in utilss.f.
+ I deleted subroutines asmbl() and cnvtgv() as they were never called.
+ I replaced calls to subroutines transp() and mult() with use of the
+   intrinsic functions TRANSPOSE() and MATMUL() and deleted the subroutines.
+
+v1.03.01a6-mlb  29-Aug-2007  M. Buhl
+ I added IMPLICIT NONE to all routines in utilss.f and math.f.
+ I replace all references to dabs() and dsqrt() to the generic abs() and
+   sqrt().
+
+v1.03.01a7-mlb  29-Aug-2007  M. Buhl
+ I replaced many of the "m" parameters in module Para with "n" parameters
+   and variables in Param.
+
+v1.03.01a8-mlb  29-Aug-2007  M. Buhl
+ I eliminated module Para.  I moved some to Param and also renamed some
+   to start with "n" instead of "m".
+ I eliminated some unused variables I found.
+ I eliminated module TwDist and all its variables.
+ I renamed Alloc2 to Alloc3 and created an Alloc2 to allocate the arrays
+   based upon n_secs (module Struc).
+
+v1.03.01a9-mlb  29-Aug-2007  M. Buhl
+ I removed all the alpha comments.
+
+v1.03.01b1-mlb  29-Aug-2007  M. Buhl
+ I added IMPLICIT NONE to the main program and started getting differnt
+   answers because I changed lag_iner_mult to a REAL, as it should have
+   been all along.
+ I deleted some more unused variables.
+
+v1.03.01b2-mlb  31-Aug-2007  M. Buhl
+ I eliminated more unused variables in the main routine.
+ I recreated the project for the compiler because it seemed to want to
+   rebuild too much when rebuilding.
+ I checked the new warning messages and found one for checking arguments.
+   It showed me that we were calling checkp with four arguments although
+   the routine had only three.  I eliminated the second string from the
+   calls.
+ In the interpolation of twx, the do loop went from 1 to n_sec, but the
+   code tested for sec_loc(isec+1), which exceeds the bounds.  I changed
+   the loop to go only to n_sec-1.
+ I redid how the gaussian points are generated for time and spatial
+   integration.  I now check the number of points for each case and pass
+   that number to the routines that generate them.  This eliminated the
+   the problem with the length of the arrays being different in the
+   calling routine and subroutine.
+
+v1.03.01b2-mlb  31-Aug-2007  M. Buhl
+ All routines are now 100% free of implicit typing.  All arguments have
+   INTENTs declared.
+
+v1.03.01b3-mlb  31-Aug-2007  M. Buhl
+ I removed alpha comments.
+ I sorted variable declarations.
+ I indented comments in prep for converting to free-form format.
+
+v1.03.01b4-mlb  31-Aug-2007  M. Buhl
+ I converted utilss.f to free-form Fortran and renamed it to utilss.f90.
+ I eliminated all statement numbers in BModes.f.
+ I converted Bmodes.f to free-form Fortran and renamed it to Bmodes.f90.
+
+v1.03.01c1-mlb  04-Sep-2007  M. Buhl
+ I used PiConsts.
+ I used ReadVar(), etc.
+
+v1.03.01c2-mlb  04-Sep-2007  M. Buhl
+ I replaced x.xxd0 with x.xx.
+ I eliminated statement labels in bldvib.f.
+
+v1.03.01c3-mlb  04-Sep-2007  M. Buhl
+ I deleted previous alpha comments from bldvib.f.
+ I converted bldvib.f to freeform and renamed the file to BldVib.f90.
+ I changed the old-fashioned usage of .eq., etc. with ==, etc.
+ I eliminated statement labels in struct.f.
+
+v1.03.01c4-mlb  04-Sep-2007  M. Buhl
+ I deleted previous alpha comments from struct.f.
+ I converted struct.f to freeform and renamed the file to Struct.f90.
+
+v1.03.01c5-mlb  05-Sep-2007  M. Buhl
+ I modified the NWTC Library to rename Abort() to ProgAbort() and Warn()
+   to ProgWarn().  I eliminated the ProgAbort routine I had temporarily
+   added to BModes.
+ I added echo processing for input files.
+
+v1.03.01d-gsb  ??-Sep-2007  G. Bir
+   Eliminated checkp
+   Convert STOP to CALL ProgAbort
+   Eliminated unused options for Gaussian points
+
+To Do:
+   In utilss.f, use matrix routines to do some of the work.
+   Convert math.f to free form.
+   Update ReadVar descriptions.
+   Regroup variables in modules.
+   Eliminate blocks of code that will never be used.
+   Put subroutines into modules.  It may improve optimization.
+   Add more test files (after upgrating BModes for platform and elastic foundation)
