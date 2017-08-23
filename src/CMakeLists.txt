@@ -16,10 +16,6 @@ if (NOT CMAKE_BUILD_TYPE)
 endif (NOT CMAKE_BUILD_TYPE)
 
 
-# Set user selectable option to turn on/off double precision
-option(DOUBLE_PRECISION "If ON, use double precision for REAL" ON)
-
-
 # Set the fortran modules to be stored in a common directory
 set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/ftnmods )
 # Add that to the include path
@@ -46,22 +42,13 @@ if (FCNAME MATCHES "gfortran.*")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none")
 endif (FCNAME MATCHES "gfortran.*")
 
-# Fix compiler flags for double precision
-if (DOUBLE_PRECISION)
-  if (FCNAME MATCHES "gfortran.*")
-    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-real-8")
-  elseif(FCNAME MATCHES "ifort.*")
-    if (WIN32)
-      set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} /real_size:64 /double_size:128")
-    else (WIN32) 
-      set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -r8 -double_size 128")
-    endif (WIN32)
-  endif (FCNAME MATCHES "gfortran.*")
-endif (DOUBLE_PRECISION)
 
 # use static libraries
 if (WIN32)
-   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} /libs:static")
+  if (FCNAME MATCHES "ifort.*")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} /libs:static")
+  endif (FCNAME MATCHES "ifort.*")
+   
 endif(WIN32)
    
 
