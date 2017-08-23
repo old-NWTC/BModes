@@ -28,15 +28,15 @@
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<Filter Name="BModes">
-		<File RelativePath="..\..\src\Alloc.f90"/>
-		<File RelativePath="..\..\src\BldVib.f90"/>
-		<File RelativePath="..\..\src\BModes.f90"/>
-		<File RelativePath="..\..\src\eigsolver.f"/>
-		<File RelativePath="..\..\src\heap_sort.f90"/>
-		<File RelativePath="..\..\src\modules.f90"/>
-		<File RelativePath="..\..\src\SetProg.f90"/>
-		<File RelativePath="..\..\src\Struct.f90"/>
-		<File RelativePath="..\..\src\utilss.f90"/></Filter>
+		<File RelativePath="..\..\src\bmodes\Alloc.f90"/>
+		<File RelativePath="..\..\src\bmodes\BldVib.f90"/>
+		<File RelativePath="..\..\src\bmodes\BModes.f90"/>
+		<File RelativePath="..\..\src\bmodes\eigsolver.f"/>
+		<File RelativePath="..\..\src\bmodes\heap_sort.f90"/>
+		<File RelativePath="..\..\src\bmodes\modules.f90"/>
+		<File RelativePath="..\..\src\bmodes\SetProg.f90"/>
+		<File RelativePath="..\..\src\bmodes\Struct.f90"/>
+		<File RelativePath="..\..\src\bmodes\utilss.f90"/></Filter>
 		<Filter Name="NWTC_Library">
 		<File RelativePath="..\..\src\NWTC_Library_v1\DoubPrec.f90"/>
 		<File RelativePath="..\..\src\NWTC_Library_v1\ModMesh.f90"/>
